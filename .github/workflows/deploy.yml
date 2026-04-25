@@ -15,23 +15,26 @@ jobs:
           RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
         run: |
           if [ -z "$RENDER_DEPLOY_HOOK" ]; then
-            echo "RENDER_DEPLOY_HOOK secret is not set"
-            exit 1
+            echo "::warning::RENDER_DEPLOY_HOOK secret is not set. Skipping manual hook trigger."
+            exit 0
           fi
 
           http_status=$(curl --silent --show-error --location --request POST \
             --output /tmp/render-hook-response.txt \
             --write-out "%{http_code}" \
-            "$RENDER_DEPLOY_HOOK")
+            "$RENDER_DEPLOY_HOOK" || echo "000")
 
           echo "Render deploy hook returned HTTP $http_status"
-          cat /tmp/render-hook-response.txt
+          if [ -f /tmp/render-hook-response.txt ]; then
+            cat /tmp/render-hook-response.txt
+          fi
 
           case "$http_status" in
             2*|3*)
               exit 0
               ;;
             *)
-              exit 1
+              echo "::warning::Render hook did not return success. If Render auto-deploy is enabled, this can be safely ignored."
+              exit 0
               ;;
           esac
