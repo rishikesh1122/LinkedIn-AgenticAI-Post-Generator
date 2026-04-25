@@ -4,7 +4,7 @@ import os
 
 def generate_linkedin_post(topic, tone, post_type):
     if not topic:
-        return "Please Enter a topic <Mandatory>"
+        return "", "", "", "Please Enter a topic <Mandatory>"
     
     try:
         generator = LinkedInPostGenerator()
@@ -74,7 +74,7 @@ with gr.Blocks(title="LinkedIn Post Generator", theme=gr.themes.Soft()) as demo:
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 7860))
     demo.launch(
-        server_name="127.0.0.1",
+        server_name="0.0.0.0",
         server_port=port,
         share=False,
     )
